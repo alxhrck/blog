@@ -1,0 +1,25 @@
+body { padding-top: 0px; }
+
+.top {
+	background: url("../img/top.jpg");
+	height: 100px;
+	background-size: 100% 300px;
+    background-repeat: no-repeat;
+}
+
+.navbar-brand {
+    font-size: 8em;
+}
+
+.navbar-brand { color:#fff !important;}
+
+.blog-post-meta {
+	color: #d9d9d9 !important;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 70%;
+}
