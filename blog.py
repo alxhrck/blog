@@ -18,7 +18,7 @@ def index():
         with open(post, 'rb') as f:
             ts = f.name.split('/')[1].split('-')[0]  # get the date stamp from the posts filename
             arc_date = datetime.strptime(ts, "%Y%m%d")
-            
+
             if arc_date not in archives:
                 archives.append(arc_date)
 
