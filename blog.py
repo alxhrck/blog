@@ -1,36 +1,75 @@
-# We import the markdown library
 import markdown
 from flask import Flask
 from flask import render_template
 from flask import Markup
 import glob
-from random import randint
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # If not needed. Set to True uses more memory
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+db = SQLAlchemy(app)
+
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime)
+    title = db.Column(db.String(80), unique=True)
+    text = db.Column(db.Text)
+
+    def __init__(self, date, title, text):
+        self.date = date
+        self.title = title
+        self.text = text
+
+    def __repr__(self):
+        return '<Title %r>' % self.title
+
+
+def add_blog_entry():
+    mdfiles = glob.glob('posts/*.md')
+    for md in sorted(mdfiles, reverse=True):
+        with open(md, 'rb') as f:
+            for i, line in enumerate(f):
+                if i == 0:
+                    title = line.split(' {')[0].strip('##')
+                if i == 2:
+                    date = datetime.strptime(line.strip(), "%B %d, %Y")
+                    break
+        with open(md, 'rb') as f:
+            a = unicode(f.read(), 'utf8')
+            text = Markup(markdown.markdown(a, ['markdown.extensions.extra']))
+
+        p = Post(date, title, text)
+        db.session.add(p)
+    try:
+        db.session.commit()
+    except Exception as e:
+        pass
 
 @app.route('/')
 def index():
-    entries = list()
+    entries = dict()
     archives = list()
-    posts = glob.glob('posts/*.md')
-    for post in sorted(posts, reverse=True):
-        with open(post, 'rb') as f:
-            ts = f.name.split('/')[1].split('-')[0]  # get the date stamp from the posts filename
-            arc_date = datetime.strptime(ts, "%Y%m%d")
 
-            if arc_date not in archives:
-                archives.append(arc_date)
-
-            p = f.read()
-            content = dict()
-            content['id'] = randint(0,1000)
-            content['text'] = Markup(markdown.markdown(unicode(p, 'utf8'), ['markdown.extensions.extra']))
-        entries.append(content)
+    posts = Post.query.all()
+    for post in posts:
+        #''.join(post.text.split('\n')[0:4])
+        entries[post.id] = post.text
+        archives.append(post.date)
 
     return render_template('index.html', entries=entries, archives=sorted(archives, reverse=True))
 
+
+@app.route('/posts/<int:id>')
+def expand_post(id=None):
+    post = Post.query.filter_by(id=id).first()
+
+    return render_template('expand.html', post=post.text)
+
 if __name__ == '__main__':
+    db.create_all()
     app.run(debug=True)
 
 
