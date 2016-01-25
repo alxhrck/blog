@@ -1,16 +1,17 @@
+import glob
 import markdown
+import collections
 from flask import Flask
 from flask import render_template
 from flask import Markup
-import glob
 from flask import url_for
-from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
-import collections
 from flask import redirect
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # If not needed. Set to True uses more memory
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # If not needed. If set to True uses more memory
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 db = SQLAlchemy(app)
 
@@ -97,9 +98,14 @@ def update_blog():
         with open(md, 'rb') as f:
             a = unicode(f.read(), 'utf8')
             text = Markup(markdown.markdown(a, ['markdown.extensions.extra']))
-        if not Post.query.filter_by(title=title).first():
+            existing = Post.query.filter_by(title=title).first()
+        if not existing:
             p = Post(date, title, text)
             db.session.add(p)
+        else:
+            existing.text = text
+            db.session.commit()
+
     try:
         db.session.commit()
     except Exception as e:
