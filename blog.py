@@ -86,6 +86,7 @@ def archives_by_year(year, page):
 
 @app.route('/update')
 def update_blog():
+    db.create_all()
     mdfiles = glob.glob('posts/*.md')
     for md in sorted(mdfiles):
         with open(md, 'rb') as f:
