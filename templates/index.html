@@ -6,10 +6,10 @@
             <h2 class="blog-post-title"></h2>
             <p class="blog-post-meta"></p>
 
-            <p>{{ content|safe }}</p>
+            <p>{{ content[0]|safe }}</p>
             <!--<a class="btn" data-toggle="collapse" data-target="#{{ id }}">More &raquo;</a></p>
             <div id="{{ id }}" class="collapse"></div>-->
-            <p><a href="{{ url_for('expand_post', id=id) }}">More &raquo;</a>
+            <p><a href="{{ url_for('expand_post', id=id, title=content[1]|replace(' ', '-')) }}">More &raquo;</a>
 
             <hr>
           </div><!-- /.blog-post -->

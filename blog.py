@@ -30,9 +30,63 @@ class Post(db.Model):
         return '<Title %r>' % self.title
 
 
-def add_blog_entry():
+def archives_sidebar():
+    archives = list()
+    posts = Post.query.all()
+    for p in posts:
+        a = p.date.date().strftime("%Y")
+        if a not in archives:
+            archives.append(a)
+    return sorted(archives, reverse=True)
+
+
+@app.route('/<int:page>')
+@app.route('/', defaults={'page': 1})
+def index(page):
+    entries = dict()
+    next_pg = page + 1
+    prev_pg = page - 1
+    pages = Post.query.order_by(Post.id.desc()).paginate(page, 4, False)
+    if page > pages.pages:
+        return redirect(url_for('index'))
+
+    for post in pages.items:
+        entries[post.id] = (post.text, post.title)
+
+    entries = collections.OrderedDict(sorted(entries.items(), reverse=True))
+    return render_template('index.html', entries=entries, archives=archives_sidebar(), next_pg=next_pg, prev_pg=prev_pg)
+
+
+@app.route('/posts/<int:id>/<title>')
+def expand_post(id, title):
+    post = Post.query.filter_by(id=id).first()
+
+    return render_template('expand.html', post=post.text, archives=archives_sidebar())
+
+
+@app.route('/archives/<year>/<int:page>')
+@app.route('/archives/<year>/', defaults={'page': 1})
+def archives_by_year(year, page):
+    #posts = Post.query.filter(Post.date.like('%' + year + '%')).all()
+    entries = dict()
+
+    next_pg = page + 1
+    prev_pg = page - 1
+    pages = Post.query.filter(Post.date.like('%' + year + '%')).order_by(Post.id.desc()).paginate(page, 4, False)
+    if page > pages.pages:
+        return redirect(url_for('index'))
+
+    for post in pages.items:
+        entries[post.id] = post.text
+    entries = collections.OrderedDict(sorted(entries.items(),  reverse=True))
+    return render_template('index.html', entries=entries, archives=archives_sidebar(),
+                           next_pg='archives/' + year + '/' + str(next_pg),
+                           prev_pg='archives/' + year + '/' + str(prev_pg))
+
+@app.route('/update')
+def update_blog():
     mdfiles = glob.glob('posts/*.md')
-    for md in mdfiles:
+    for md in sorted(mdfiles):
         with open(md, 'rb') as f:
             for i, line in enumerate(f):
                 if i == 0:
@@ -49,63 +103,7 @@ def add_blog_entry():
     try:
         db.session.commit()
     except Exception as e:
-        return 'no updates'
-    return 'OK'
-
-
-def archives_sidebar():
-    archives = list()
-    posts = Post.query.all()
-    for p in posts:
-        a = p.date.date().strftime("%Y")
-        if a not in archives:
-            archives.append(a)
-    return sorted(archives, reverse=True)
-
-
-@app.route('/<int:page>')
-@app.route('/', defaults={'page': 1})
-def index(page):
-    e = dict()
-    archives = list()
-    next_pg = page + 1
-    prev_pg = page - 1
-    pages = Post.query.order_by(Post.id.desc()).paginate(page, 4, False)
-    if page > pages.pages:
-        return redirect(url_for('index'))
-
-    for post in pages.items:
-        e[post.id] = post.text
-        archives.append(post.date)
-    entries = collections.OrderedDict(sorted(e.items(), reverse=True))
-    return render_template('index.html', entries=entries, archives=archives_sidebar(), next_pg=next_pg, prev_pg=prev_pg)
-
-
-@app.route('/posts/<int:id>')
-def expand_post(id=None):
-    post = Post.query.filter_by(id=id).first()
-
-    archives = list()
-    posts = Post.query.all()
-    for p in posts:
-        a = p.date.date().strftime("%Y")
-        if a not in archives:
-            archives.append(a)
-
-    return render_template('expand.html', post=post.text, archives=archives_sidebar())
-
-@app.route('/<year>')
-def archives_by_year(year=None):
-    posts = Post.query.filter(Post.date.like('%' + year + '%')).all()
-    entries = dict()
-    for post in posts:
-        entries[post.id] = post.text
-    entries = collections.OrderedDict(sorted(entries.items(),  reverse=True))
-    return render_template('index.html', entries=entries, archives=archives_sidebar())
-
-@app.route('/update')
-def update_blog():
-    add_blog_entry()
+        pass
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
