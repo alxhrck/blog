@@ -1,4 +1,4 @@
-##Kippo/Cowrie Event IDs {:.blog-post-title}
+##Cowrie Event IDs {:.blog-post-title}
 
 December 20, 2015
 {:.blog-post-meta}
