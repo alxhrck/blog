@@ -44,7 +44,7 @@
                 <li><a href="#">honeypot_deployment</a></li>
                 <li role="separator" class="divider"></li>
                 <li class="dropdown-header">Extras</li>
-                <li><a href="/login">Login</a></li>
+                <li><a href="/update">Login</a></li>
               </ul>
             </li>
           </ul>
@@ -72,12 +72,7 @@
 
 
     {% block sidebar %}
-          <nav>
-            <ul class="pager">
-              <li><a href="#">Previous</a></li>
-              <li><a href="#">Next</a></li>
-            </ul>
-          </nav>
+
 
         </div><!-- /.blog-main -->
 
@@ -85,8 +80,8 @@
            <div class="sidebar-module">
             <h4>Archives</h4>
             <ol class="list-unstyled">
-              {% for month in archives %}
-              <li><a href="#">{{month.strftime("%B %Y")}}</a></li>
+              {% for year in archives %}
+              <li><a href="/{{ year }}">{{ year }}</a></li>
               {% endfor %}
             </ol>
           </div>
