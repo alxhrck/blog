@@ -1,0 +1,36 @@
+##Connecting MongoDB to Splunk on the Cheap {:.blog-post-title}
+
+February 05, 2016
+{:.blog-post-meta}
+
+
+Whether it's a list of your organizations privileged accounts, a collection of assets or a database of IOCs, pulling data into Splunk from an external source is an important aspect of network security monitoring. While a database connector is available at no cost to connect Splunk to a SQL database, it isn't designed for use with Mongo, or other No-SQL databases. Hunk is a Splunk developed add-on that does allow such functionality, but it requires purchasing additional licensing.
+
+Splunk supports custom scripts that can enrich data during a search. These scripts are known as external lookups. The concept is similar to a lookup table which is a CSV file of information queried and added to the search results but an externl lookup adds the power and flexibility of a Python script.
+
+Creating a external lookup script using pymongo enables Splunk to query a MongoDB without the need for Hunk.  Building the script is fairly straight forward but there are a few tricky items that need to be addressed to make everything work correctly.
+
+Splunk uses it's own installation of Python including packages and libraries. This causes an issue when trying to import pymongo for use in the lookup script. To resolve this, add `` sys.path.append('/path/to/system/python2.7/dist-packages/') `` before importing. This will registers the system's Python packages with Splunk's interpreter.
+
+The lookup script take at least one argument which will be used as the fieldnames (heading) for the CSV input coming from Splunk. The script then parse the CSV input, using the heading (dict key) and the value to query MongoDB. Splunk expects a CSV formatted data to be returned from the lookup script. First, using the Python CSV library, capture the heading by querying the results keys and using them as the header. Now, writerow can be called to output a dictionary to a CSV line.
+In this example, the value of *lookup* should be a key in a MongoDB record. It is also used as the heading for the input CSV.
+
+
+```
+lookup = sys.argv[1]
+infile = sys.stdin  # input is CSV formatted
+outfile = sys.stdout  # outputs CSV formatted
+r = csv.DictReader(infile)
+w = csv.DictWriter(outfile, fieldnames=lookup)
+
+for query in r:
+	if db.find_one({lookup: {"$regex": query[lookup]}}):
+		heading = db.find_one({lookup: {"$regex": query[lookup]}}).keys()
+		w.fieldnames = heading
+		w.writeheader()
+		w.writerow(db.find_one({lookup: {"$regex": query[lookup]}}))
+
+```
+
+Once the script is created, Splunk must be configured with the field headings of the output from the external lookup.
+
