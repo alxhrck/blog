@@ -52,7 +52,7 @@ def index(page):
         return redirect(url_for('index'))
 
     for post in pages.items:
-        entries[post.id] = (post.text, post.title)
+        entries[post.id] = post.text
 
     entries = collections.OrderedDict(sorted(entries.items(), reverse=True))
     return render_template('index.html', entries=entries, archives=archives_sidebar(), next_pg=next_pg, prev_pg=prev_pg)
