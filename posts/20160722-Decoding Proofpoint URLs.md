@@ -18,10 +18,10 @@ Another interesting aspect of URL Defense is in the real-time alerts. These aler
 Thankfully, [Warren Raquel] (<https://github.com/warquel>) had already written some code to decode the suspect link parameter of the rewritten URL, I simply scriptified his code, and added removal of those funky zero width spaces. 
 
 
+
+
 Modified ppdecode <https://github.com/alxhrck/other_scripts/blob/master/ppdecode.py>
 
 
 Original ppdecode <https://github.com/warquel/ppdecode>
 
-
-<https://github.com/alxhrck/other_scripts/blob/master/ppdecode.py>
