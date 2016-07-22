@@ -3,6 +3,8 @@
 July 22, 2016
 {:.blog-post-meta}
 
+![eek_haxxor](/static/img/phishing2.png)
+
 Recently, I started reviewing messages found in the corporate spam box, setup for people to alert us on any phishy messages getting past the spam filters, in an attempt to automatically analyze new phishing links. 
 
 
