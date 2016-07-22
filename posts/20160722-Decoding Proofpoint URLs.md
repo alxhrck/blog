@@ -17,7 +17,7 @@ The challenge was to decode the URL parameter from Proofpoint and return it to i
 Another interesting aspect of URL Defense is in the real-time alerts. These alerts contain information around who clicked the suspect link, from where and which link. Proofpoint is tricky how they include the suspect URL. They insert zero width space (Unicode: \u200b) between each character, basically invalidating the link. You know, for safety.
 
 
-Thankfully, [Warren Raquel] (<https://github.com/warquel>) had already written some code to decode the suspect link parameter of the rewritten URL, I simply scriptified his code, and added removal of those funky zero width spaces. 
+Thankfully, [Warren Raquel](<https://github.com/warquel>) had already written some code to decode the suspect link parameter of the rewritten URL, I simply scriptified his code, and added removal of those funky zero width spaces. 
 
 
 
