@@ -11,7 +11,7 @@ Recently, I started reviewing messages found in the corporate spam box, setup fo
 Fortunately, or unfortunately (depending on where you sit), Proofpoint offers a service to a block links to malicious and suspicious sites. This service rewrites the suspect URL in each email with a link that redirects through the Proofpoint URL Defense system.  A parameter of this new URL is the encoded version of the suspect link.
 
 
-The challenge was to decode the URL parameter from Proofpoint and return it to its original format. This is for two purposes, first and formost, this allows me to not get blocked by URL Defense and second, it prevents sewed results. 
+The challenge was to decode the URL parameter from Proofpoint and return it to its original format. This is for two purposes, first and formost, this allows me to not get blocked by URL Defense and second, it prevents skewed results. 
 
 
 Another interesting aspect of URL Defense is in the real-time alerts. These alerts contain information around who clicked the suspect link, from where and which link. Proofpoint is tricky how they include the suspect URL. They insert zero width space (Unicode: \u200b) between each character, basically invalidating the link. You know, for safety.
